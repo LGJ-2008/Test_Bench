@@ -59,7 +59,7 @@ void Send_Init_Success_to_PC(MESSAGE_Packet message_Packet)
 }
 
 /*传输值到PC*/
-void Send_Value_to_PC(MESSAGE_Packet message_Packet, uint8_t message_Value)
+void Send_Value_to_PC(MESSAGE_Packet message_Packet, uint8_t* message_Value)
 {
     uint8_t message[10]={0x00};
 
@@ -68,8 +68,7 @@ void Send_Value_to_PC(MESSAGE_Packet message_Packet, uint8_t message_Value)
     message[0] = message_Packet.SourceType;
     message[1]=message_Packet.Type;
 
-    memcpy(&message[2], Value, sizeof(Value));
-
+    memcpy(&message[2], message_Value, sizeof(message_Value));
 
     CDC_Transmit_FS(message, sizeof(message));
 }

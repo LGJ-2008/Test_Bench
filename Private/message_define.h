@@ -38,4 +38,4 @@ typedef struct MESSAGE_ST
 void Send_Error_to_PC(MESSAGE_Packet message_Packet, uint8_t ErrorCode);
 void Send_Warning_to_PC(MESSAGE_Packet message_Packet, uint8_t WarningCode);
 void Send_Init_Success_to_PC(MESSAGE_Packet message_Packet);
-void Send_Value_to_PC(MESSAGE_Packet message_Packet, uint8_t message_Value);
+void Send_Value_to_PC(MESSAGE_Packet message_Packet, uint8_t* message_Value);
