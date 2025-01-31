@@ -18,4 +18,5 @@ typedef enum
 Pre_receive pre_send_reback(uint8_t* data);
 
 void pre_init(void);
-void pre_get_value(void);
+void pre_read_value(uint8_t* pressure_value);
+void pre_clear(void);

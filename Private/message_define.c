@@ -11,19 +11,36 @@
 
 
 /*传输错误到PC*/
-void Send_Error_to_PC(MESSAGE_Packet message_Packet)
+void Send_Error_to_PC(MESSAGE_Packet message_Packet, uint8_t ErrorCode)
 {
-    uint8_t message[2]={0x00};
+    uint8_t message[3]={0x00};
 
     message_Packet.Type = Error;
 
     message[0] = message_Packet.SourceType;
     message[1]=message_Packet.Type;
+    message[2] = ErrorCode;
 
 
-    CDC_Transmit_FS(message, 2);
+    CDC_Transmit_FS(message, 3);
 
     while (1);
+}
+
+/*传输警告到PC*/
+void Send_Warning_to_PC(MESSAGE_Packet message_Packet, uint8_t WarningCode)
+{
+    uint8_t message[3]={0x00};
+
+    message_Packet.Type = Error;
+
+    message[0] = message_Packet.SourceType;
+    message[1]=message_Packet.Type;
+    message[2] = WarningCode;
+
+
+    CDC_Transmit_FS(message, 3);
+
 }
 
 /*传输初始化成功到PC*/

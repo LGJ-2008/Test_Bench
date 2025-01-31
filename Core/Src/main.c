@@ -32,12 +32,13 @@
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "diskio.h"
+#include "file_conf.h"
 #include "pre_sen.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-extern USBD_HandleTypeDef hUsbDeviceFS;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -64,25 +65,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-uint8_t Pre_Buf[16]={0x00};
-
-
-
-
-
-
-uint8_t Pre_init_OK[] = {0x01, 0x01};
-
-
-
-char Pre_Decimal_digits_OK[]="Pressure Sensor：小数位初始化完成";
-char Pre_Decimal_digits_Fail[]="Pressure Sensor：小数位初始化失败";
-
-char Pre_Set_Unit_OK[]="Pressure Sensor：单位初始化完成";
-char Pre_Set_Unit_Fail[]="Pressure Sensor：单位初始化失败";
-
-
 
 char FS_res_OK[]="Fatfs,初始化完成";
 char FS_res_Fail[]="Fatfs,初始化失败";
@@ -132,93 +114,82 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
-  static uint8_t Pre_Set_Decimal_digits[]={0x01, 0x06, 0x00, 0x01, 0x00, 0x01, 0x19, 0xCA};//设置小数点后精确到一位
-  static uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0x09};//设置单位：N
-  static uint8_t Pre_get_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
 
-
-
-  // HAL_UART_Transmit(&huart2, Pre_Set_Decimal_digits, sizeof(Pre_Set_Decimal_digits),10);
-  // HAL_UART_Receive(&huart2,Pre_Buf,8,100);
-  // if (memcmp(Pre_Buf,Pre_Set_Decimal_digits,8)==0) {
-  //   CDC_Transmit_FS(Pre_Decimal_digits_OK, sizeof(Pre_Decimal_digits_OK));
-  // } else {
-  //   CDC_Transmit_FS(Pre_Decimal_digits_Fail, sizeof(Pre_Decimal_digits_Fail));
-  // }
-  //
-  //
-  //
-  //
-  // HAL_UART_Transmit(&huart2, Pre_Set_Unit, sizeof(Pre_Set_Unit),10);
-  // HAL_UART_Receive(&huart2,Pre_Buf,8,100);
-  // if (memcmp(Pre_Buf,Pre_Set_Unit,8)==0) {
-  //   CDC_Transmit_FS(Pre_Set_Unit_OK, sizeof(Pre_Set_Unit_OK));
-  // } else {
-  //   CDC_Transmit_FS(Pre_Set_Unit_Fail, sizeof(Pre_Set_Unit_Fail));
-  // }
 
   HAL_Delay(2000);
 
 
+  SD_files_Init();
+  SD_files_mount();
 
+  char file_name[] = "NewFile.txt";
+  SD_files_New(file_name);
 
-  FATFS *fs;//新建文件系统对象
-  FRESULT fres;//
-  FIL file;  //新建文件对象
-
-  fs = malloc(sizeof (FATFS));   /* Get work area for the volume */
-
-  fres = f_mount(fs, "", 1);
-  if (fres == FR_OK)
+  char file_Details[] = "Hello World";
+  for (int i = 0; i < 10; i++)
   {
-    CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  } else
-  {
-    CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-    while (1);
+    SD_files_Write(file_Details, strlen(file_Details));
   }
 
+  SD_files_Close();
+
+  // FATFS *fs;//新建文件系统对象
+  // FRESULT fres;//
+  // FIL file;  //新建文件对象
+
+  // fs = malloc(sizeof (FATFS));   /* Get work area for the volume */
+  //
+  // fres = f_mount(fs, "", 1);
+  // if (fres == FR_OK)
+  // {
+  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
+  // } else
+  // {
+  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
+  //   while (1);
+  // }
 
 
-  fres=f_open(&file, "test.txt", FA_CREATE_ALWAYS | FA_WRITE);
-  if (fres == FR_OK)
-  {
-    CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  } else
-  {
-    CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-    while (1);
-  }
+  //
+  // fres=f_open(&file, "test.txt", FA_CREATE_ALWAYS | FA_WRITE);
+  // if (fres == FR_OK)
+  // {
+  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
+  // } else
+  // {
+  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
+  //   while (1);
+  // }
 
 
-  char wtext[] = "Hello, FatFs!\r\n";
-  UINT bw;
-  fres = f_write(&file, wtext, sizeof(wtext), &bw);
-  if (fres == FR_OK)
-  {
-    CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  } else
-  {
-    CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-  }
-
-
-  fres = f_close(&file);
-  if (fres == FR_OK)
-  {
-    CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  } else
-  {
-    CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-    while (1);
-  }
+  // char wtext[] = "Hello, FatFs!\r\n";
+  // UINT bw;
+  // fres = f_write(&file, wtext, sizeof(wtext), &bw);
+  // if (fres == FR_OK)
+  // {
+  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
+  // } else
+  // {
+  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
+  // }
+  //
+  //
+  // fres = f_close(&file);
+  // if (fres == FR_OK)
+  // {
+  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
+  // } else
+  // {
+  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
+  //   while (1);
+  // }
 
 
 
 
   pre_init();
 
-  uint8_t clear[] ={0x01, 0x06, 0x00, 0x11, 0x00, 0x01, 0x18, 0x0F};
+
 
 
   /* USER CODE END 2 */
@@ -231,35 +202,19 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    uint8_t buffer[10]={0x00};
-    HAL_UART_Transmit(Pressure_UART_handler, Pre_get_Value, sizeof(Pre_get_Value), 100);
-    HAL_UART_Receive(Pressure_UART_handler, buffer, 7, 100);
 
 
-    uint8_t value[2];
-    memcpy(value, &buffer[3], 2);
 
-    CDC_Transmit_FS(value, sizeof(value));
+    uint8_t pressure_value[2]={0x00};
 
-    char result[5];
-
-    snprintf(result, 5, "%02x%02x", value[0], value[1]);
-
-    // uint8_t result = sprintf(value, 2, "%02x%02x", value[0], value[1]);
-    // result=strtol(result, NULL, 16);
-    // char Value[5]="0";
-    // sprintf(Value, "%ld", result);
-
-    uint8_t Result=0;
-    Result = strtol(result, NULL, 16);
-
-    CDC_Transmit_FS(&Result, sizeof(Result));
+    pre_read_value(pressure_value);
+    CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
 
     static int i=0;
     i++;
     if (i%10==0)
     {
-      pre_send_reback(clear);
+      pre_clear();
     }
 
 

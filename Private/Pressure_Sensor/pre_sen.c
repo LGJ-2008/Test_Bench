@@ -2,21 +2,25 @@
 
 #include <string.h>
 
+
 #include "message_define.h"
 #include "stm32f4xx_hal.h"
 #include "usart.h"
 #include "usbd_cdc_if.h"
 
 
-static uint8_t Pre_Set_Decimal_digits[]={0x01, 0x06, 0x00, 0x01, 0x00, 0x01, 0x19, 0xCA};//设置小数点后精确到一位
-static uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0x09};//设置单位：N
-static uint8_t Pre_get_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
+static const uint8_t Pre_Set_Decimal_digits[]={0x01, 0x06, 0x00, 0x01, 0x00, 0x01, 0x19, 0xCA};//设置小数点后精确到一位
+static const uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0x09};//设置单位：N
+static const uint8_t Pre_read_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
+static const uint8_t Pre_clear[] ={0x01, 0x06, 0x00, 0x11, 0x00, 0x01, 0x18, 0x0F};//清零数值
 
-uint8_t receive_data[8]={0x00};
+/*声明信息包*/
+static MESSAGE_Packet message_Packet_Pre;
+
 
 Pre_receive pre_send_reback(uint8_t* data)
 {
-
+    uint8_t receive_data[8]={0x00};
 
     HAL_UART_Transmit(Pressure_UART_handler, data, 8, 10);
 
@@ -30,51 +34,54 @@ Pre_receive pre_send_reback(uint8_t* data)
 }
 
 
+/*初始化*/
 void pre_init(void)
 {
-    MESSAGE_Packet message_Packet;
-    message_Packet.SourceType = Pressure;
+    /*初始化信息包*/
+    message_Packet_Pre.SourceType = Pressure;
 
-    // uint8_t Pre_Buf[16]={0x00};
-    //
-    //
-    //
-    //
-    //
-    //
-    // uint8_t Pre_init_OK[] = {0x01, 0x01};
-    //
-    //
-    //
-    // char Pre_Decimal_digits_OK[]="Pressure Sensor：小数位初始化完成";
-    // char Pre_Decimal_digits_Fail[]="Pressure Sensor：小数位初始化失败";
-    //
-    // char Pre_Set_Unit_OK[]="Pressure Sensor：单位初始化完成";
-    // char Pre_Set_Unit_Fail[]="Pressure Sensor：单位初始化失败";
-    //
-    // HAL_UART_Transmit(&huart2, Pre_Set_Decimal_digits, sizeof(Pre_Set_Decimal_digits),10);
-    // HAL_UART_Receive(&huart2,Pre_Buf,8,100);
-    // if (memcmp(Pre_Buf,Pre_Set_Decimal_digits,8)==0) {
-    //   CDC_Transmit_FS(Pre_Decimal_digits_OK, sizeof(Pre_Decimal_digits_OK));
-    // } else {
-    //   CDC_Transmit_FS(Pre_Decimal_digits_Fail, sizeof(Pre_Decimal_digits_Fail));
-    // }
-
-
-
-    /*设置小数位*/
+    /*设置小数位 : 一位小数*/
     if (pre_send_reback(Pre_Set_Decimal_digits)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet);
+        Send_Error_to_PC(message_Packet_Pre, 0x01);
     }
 
+    /*设置单位 : N*/
     if (pre_send_reback(Pre_Set_Unit)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet);
+        Send_Error_to_PC(message_Packet_Pre, 0x02);
     }
 
+    /*清零数值*/
+    if (pre_send_reback(Pre_clear)!=Pre_OK)
+    {
+        Send_Error_to_PC(message_Packet_Pre, 0x03);
+    }
 
-
-
-    Send_Init_Success_to_PC(message_Packet);
+    /*发送初始化成功*/
+    Send_Init_Success_to_PC(message_Packet_Pre);
 }
+
+
+void pre_read_value(uint8_t* pressure_value)
+{
+
+    uint8_t data_buffer[7]={0x00};
+    HAL_UART_Transmit(Pressure_UART_handler, Pre_read_Value, 8, 10);
+    HAL_UART_Receive(Pressure_UART_handler, data_buffer, 7, 100);
+    memcpy(pressure_value, &data_buffer[3], 2);
+
+}
+
+/*清零数值*/
+void pre_clear(void)
+{
+
+
+    if (pre_send_reback(Pre_clear)!=Pre_OK)
+    {
+        Send_Error_to_PC(message_Packet_Pre, 0x03);
+    }
+}
+
+
