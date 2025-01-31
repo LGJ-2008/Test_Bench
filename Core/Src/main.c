@@ -32,6 +32,7 @@
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "diskio.h"
+#include "pre_sen.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,9 +67,13 @@ void SystemClock_Config(void);
 
 uint8_t Pre_Buf[16]={0x00};
 
-uint8_t Pre_Set_Decimal_digits[]={0x01, 0x06, 0x00, 0x01, 0x00, 0x01, 0x19, 0xCA};//设置小数点后精确到一位
-uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0x09};//设置单位：N
-uint8_t Pre_Read_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
+
+
+
+
+
+uint8_t Pre_init_OK[] = {0x01, 0x01};
+
 
 
 char Pre_Decimal_digits_OK[]="Pressure Sensor：小数位初始化完成";
@@ -127,9 +132,12 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
+  static uint8_t Pre_Set_Decimal_digits[]={0x01, 0x06, 0x00, 0x01, 0x00, 0x01, 0x19, 0xCA};//设置小数点后精确到一位
+  static uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0x09};//设置单位：N
+  static uint8_t Pre_get_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
 
-  // HAL_Delay(5000);
-  //
+
+
   // HAL_UART_Transmit(&huart2, Pre_Set_Decimal_digits, sizeof(Pre_Set_Decimal_digits),10);
   // HAL_UART_Receive(&huart2,Pre_Buf,8,100);
   // if (memcmp(Pre_Buf,Pre_Set_Decimal_digits,8)==0) {
@@ -138,7 +146,7 @@ int main(void)
   //   CDC_Transmit_FS(Pre_Decimal_digits_Fail, sizeof(Pre_Decimal_digits_Fail));
   // }
   //
-  // HAL_Delay(10);
+  //
   //
   //
   // HAL_UART_Transmit(&huart2, Pre_Set_Unit, sizeof(Pre_Set_Unit),10);
@@ -148,28 +156,19 @@ int main(void)
   // } else {
   //   CDC_Transmit_FS(Pre_Set_Unit_Fail, sizeof(Pre_Set_Unit_Fail));
   // }
-  //
-  // HAL_Delay(2000);
 
-  HAL_Delay(1000);
+  HAL_Delay(2000);
 
 
-  FATFS fs;//新建文件系统对象
+
+
+  FATFS *fs;//新建文件系统对象
   FRESULT fres;//
   FIL file;  //新建文件对象
 
-  BYTE work[4096];  // 工作缓冲区（需根据扇区大小调整）
+  fs = malloc(sizeof (FATFS));   /* Get work area for the volume */
 
-  BYTE buffer[512]={0};  // 扇区缓冲区
-  DRESULT res;
-
-  DSTATUS status = disk_initialize(0);
-
-
-  // 读取 SD 卡第 0 扇区（MBR 或引导扇区）
-  res = disk_read(0, buffer, 0, 1);  // 驱动器 0，扇区号 0，读取
-
-  fres = f_mount(&fs, "", 1);
+  fres = f_mount(fs, "", 1);
   if (fres == FR_OK)
   {
     CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
@@ -181,7 +180,7 @@ int main(void)
 
 
 
-  fres=f_open(&file, "test.txt", FA_CREATE_ALWAYS);
+  fres=f_open(&file, "test.txt", FA_CREATE_ALWAYS | FA_WRITE);
   if (fres == FR_OK)
   {
     CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
@@ -217,7 +216,9 @@ int main(void)
 
 
 
+  pre_init();
 
+  uint8_t clear[] ={0x01, 0x06, 0x00, 0x11, 0x00, 0x01, 0x18, 0x0F};
 
 
   /* USER CODE END 2 */
@@ -230,7 +231,39 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+    uint8_t buffer[10]={0x00};
+    HAL_UART_Transmit(Pressure_UART_handler, Pre_get_Value, sizeof(Pre_get_Value), 100);
+    HAL_UART_Receive(Pressure_UART_handler, buffer, 7, 100);
 
+
+    uint8_t value[2];
+    memcpy(value, &buffer[3], 2);
+
+    CDC_Transmit_FS(value, sizeof(value));
+
+    char result[5];
+
+    snprintf(result, 5, "%02x%02x", value[0], value[1]);
+
+    // uint8_t result = sprintf(value, 2, "%02x%02x", value[0], value[1]);
+    // result=strtol(result, NULL, 16);
+    // char Value[5]="0";
+    // sprintf(Value, "%ld", result);
+
+    uint8_t Result=0;
+    Result = strtol(result, NULL, 16);
+
+    CDC_Transmit_FS(&Result, sizeof(Result));
+
+    static int i=0;
+    i++;
+    if (i%10==0)
+    {
+      pre_send_reback(clear);
+    }
+
+
+    HAL_Delay(300);
 
 
 

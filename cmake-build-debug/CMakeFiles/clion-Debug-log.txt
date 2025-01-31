@@ -1,15 +1,5 @@
 "D:\[Software][Install Package]\[CLion][2024.2.2]\CLion 2024.3.1.1\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=D:/[Software][Install Package]/[CLion][2024.2.2]/CLion 2024.3.1.1/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\24149\CLionProjects\Test_Bench -B C:\Users\24149\CLionProjects\Test_Bench\cmake-build-debug
--- The C compiler identification is unknown
--- The CXX compiler identification is unknown
--- The ASM compiler identification is GNU
--- Found assembler: D:/[Software][Install Package]/[Tools]/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gcc.exe
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: D:/[Software][Install Package]/[Tools]/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gcc.exe - skipped
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: D:/[Software][Install Package]/[Tools]/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-g++.exe - skipped
 -- Minimal optimization, debug info included
--- Configuring done (1.5s)
+-- Configuring done (0.0s)
 -- Generating done (0.0s)
 -- Build files have been written to: C:/Users/24149/CLionProjects/Test_Bench/cmake-build-debug
