@@ -40,6 +40,8 @@ void SD_files_mount(void)
     {
         Send_Warning_to_PC(message_Packet_Ft, 0x01);
         File_Conf_Status = FILE_CONF_ERROR;
+    } else {
+        Send_Init_Success_to_PC(message_Packet_Ft);
     }
 }
 
