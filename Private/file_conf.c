@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/*声明信息包*/
-static MESSAGE_Packet message_Packet_Ft;
-
 /*声明文件状态*/
 File_Conf_Status_EN File_Conf_Status = FILE_CONF_OK;
 File_Write_Status_EN File_Write_Status = FILE_Write_OK;
@@ -20,9 +17,6 @@ FIL *file;  //新建文件对象
 /*初始化文件系统*/
 void SD_files_Init(void)
 {
-    /*初始化信息包*/
-    message_Packet_Ft.SourceType = FatFs;
-
     /*分配内存*/
     fs = malloc(sizeof (FATFS));
     file = malloc (sizeof (FIL));
@@ -38,10 +32,10 @@ void SD_files_mount(void)
     /*挂载驱动器*/
     if (f_mount(fs, "", 1)!=FR_OK)
     {
-        Send_Warning_to_PC(message_Packet_Ft, 0x01);
+        Send_Warning_to_PC(FatFs, 0x01);
         File_Conf_Status = FILE_CONF_ERROR;
     } else {
-        Send_Init_Success_to_PC(message_Packet_Ft);
+        Send_Init_Success_to_PC(FatFs);
     }
 }
 
@@ -57,7 +51,7 @@ void SD_files_New(char* file_name)
     /*新建或覆盖文件并打开*/
     if (f_open(file, file_name, FA_CREATE_ALWAYS | FA_WRITE)!=FR_OK)
     {
-        Send_Warning_to_PC(message_Packet_Ft, 0x02);
+        Send_Warning_to_PC(FatFs, 0x02);
         File_Conf_Status = FILE_CONF_ERROR;
     }
 }
@@ -76,7 +70,7 @@ void SD_files_Write(char* file_Details, UINT Details_Size)
     {
         if (File_Write_Status == FILE_Write_OK)
         {
-            Send_Warning_to_PC(message_Packet_Ft, 0x03);
+            Send_Warning_to_PC(FatFs, 0x03);
             File_Write_Status = FILE_Write_ERROR;
             return;
         }
@@ -91,7 +85,7 @@ void SD_files_Write(char* file_Details, UINT Details_Size)
     {
         if (File_Write_Status == FILE_Write_OK)
         {
-            Send_Warning_to_PC(message_Packet_Ft, 0x04);
+            Send_Warning_to_PC(FatFs, 0x04);
             File_Write_Status = FILE_Write_ERROR;
             return;
         }
@@ -102,7 +96,7 @@ void SD_files_Write(char* file_Details, UINT Details_Size)
     {
         if (File_Write_Status == FILE_Write_OK)
         {
-            Send_Warning_to_PC(message_Packet_Ft, 0x05);
+            Send_Warning_to_PC(FatFs, 0x05);
             File_Write_Status = FILE_Write_ERROR;
         }
     }
@@ -113,7 +107,7 @@ void SD_files_Close()
 {
     if (f_close(file)!=FR_OK)
     {
-        Send_Warning_to_PC(message_Packet_Ft, 0x06);
+        Send_Warning_to_PC(FatFs, 0x06);
         File_Conf_Status = FILE_CONF_OK;
         File_Write_Status = FILE_Write_OK;
     }

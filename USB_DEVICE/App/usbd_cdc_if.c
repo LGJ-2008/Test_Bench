@@ -22,7 +22,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+uint8_t usb_rx_len = 0;         // 变量定义
+uint8_t usb_rx_buffer[64] = {0}; // 具体分配空间（64 字节示例）
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -258,11 +259,18 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   * @param  Len: Number of data received (in bytes)
   * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
+
+
+
+
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+  memset(usb_rx_buffer, 0, sizeof(usb_rx_buffer));
+  memcpy(usb_rx_buffer, Buf, *Len);  // 复制数据到全局缓冲区
+  usb_rx_len = *Len;
   return (USBD_OK);
   /* USER CODE END 6 */
 }

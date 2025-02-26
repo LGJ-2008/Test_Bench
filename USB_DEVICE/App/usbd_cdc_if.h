@@ -30,7 +30,8 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+   extern uint8_t usb_rx_len;      // 使用 extern 关键字，仅声明，不定义
+   extern uint8_t usb_rx_buffer[]; // 确保在 usbd_cdc_if.c 里有定义
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY

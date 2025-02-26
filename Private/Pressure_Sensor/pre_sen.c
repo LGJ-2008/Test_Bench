@@ -14,8 +14,7 @@ static const uint8_t Pre_Set_Unit[]={0x01, 0x06, 0x00, 0x02, 0x00, 0x05, 0xE8, 0
 static const uint8_t Pre_read_Value[]={0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//读取传感器数值
 static const uint8_t Pre_clear[] ={0x01, 0x06, 0x00, 0x11, 0x00, 0x01, 0x18, 0x0F};//清零数值
 
-/*声明信息包*/
-static MESSAGE_Packet message_Packet_Pre;
+
 
 
 Pre_receive pre_send_reback(uint8_t* data)
@@ -37,29 +36,27 @@ Pre_receive pre_send_reback(uint8_t* data)
 /*初始化*/
 void pre_init(void)
 {
-    /*初始化信息包*/
-    message_Packet_Pre.SourceType = Pressure;
 
     /*设置小数位 : 一位小数*/
     if (pre_send_reback(Pre_Set_Decimal_digits)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet_Pre, 0x01);
+        Send_Error_to_PC(Pressure, 0x01);
     }
 
     /*设置单位 : N*/
     if (pre_send_reback(Pre_Set_Unit)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet_Pre, 0x02);
+        Send_Error_to_PC(Pressure, 0x02);
     }
 
     /*清零数值*/
     if (pre_send_reback(Pre_clear)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet_Pre, 0x03);
+        Send_Error_to_PC(Pressure, 0x03);
     }
 
     /*发送初始化成功*/
-    Send_Init_Success_to_PC(message_Packet_Pre);
+    Send_Init_Success_to_PC(Pressure);
 }
 
 
@@ -74,14 +71,15 @@ void pre_read_value(uint8_t* pressure_value)
 }
 
 /*清零数值*/
-void pre_clear(void)
+Pre_receive pre_clear(void)
 {
-
-
     if (pre_send_reback(Pre_clear)!=Pre_OK)
     {
-        Send_Error_to_PC(message_Packet_Pre, 0x03);
+        Send_Warning_to_PC(Pressure, 0x01);
+        return Pre_Fail;
     }
+    Send_Message_to_PC(Pressure, 0x01);
+    return Pre_OK;
 }
 
 

@@ -20,19 +20,24 @@
 #include "main.h"
 #include "fatfs.h"
 #include "sdio.h"
+#include "spi.h"
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #include "stm32f4xx_hal.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "diskio.h"
 #include "file_conf.h"
+#include "message_define.h"
 #include "pre_sen.h"
 /* USER CODE END Includes */
 
@@ -43,7 +48,15 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+void convert_unix_to_beijing_time(time_t timestamp, uint8_t* time_c, size_t buffer_size) {
+  timestamp += 8 * 3600;  // 手动添加 8 小时偏移
+  struct tm *timeinfo = gmtime(&timestamp);  // 解析为 UTC+8 时间
 
+  // 使用 sprintf 格式化字符串，并存入 uint8_t 数组
+  snprintf((char *)time_c, buffer_size, "%d-%02d-%02d %02d:%02d:%02d",
+           timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+           timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+}
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -65,15 +78,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-char FS_res_OK[]="Fatfs,初始化完成";
-char FS_res_Fail[]="Fatfs,初始化失败";
-
-
-
-
-
-
 
 /* USER CODE END 0 */
 
@@ -112,12 +116,8 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-
-
-
-  HAL_Delay(2000);
-
 
   SD_files_Init();
   SD_files_mount();
@@ -133,62 +133,26 @@ int main(void)
 
   SD_files_Close();
 
-  // FATFS *fs;//新建文件系统对象
-  // FRESULT fres;//
-  // FIL file;  //新建文件对象
-
-  // fs = malloc(sizeof (FATFS));   /* Get work area for the volume */
-  //
-  // fres = f_mount(fs, "", 1);
-  // if (fres == FR_OK)
-  // {
-  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  // } else
-  // {
-  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-  //   while (1);
-  // }
-
-
-  //
-  // fres=f_open(&file, "test.txt", FA_CREATE_ALWAYS | FA_WRITE);
-  // if (fres == FR_OK)
-  // {
-  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  // } else
-  // {
-  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-  //   while (1);
-  // }
-
-
-  // char wtext[] = "Hello, FatFs!\r\n";
-  // UINT bw;
-  // fres = f_write(&file, wtext, sizeof(wtext), &bw);
-  // if (fres == FR_OK)
-  // {
-  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  // } else
-  // {
-  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-  // }
-  //
-  //
-  // fres = f_close(&file);
-  // if (fres == FR_OK)
-  // {
-  //   CDC_Transmit_FS(FS_res_OK, sizeof(FS_res_OK));
-  // } else
-  // {
-  //   CDC_Transmit_FS(FS_res_Fail, sizeof(FS_res_Fail));
-  //   while (1);
-  // }
 
 
 
+
+  int64_t time;
+  uint8_t time_c[25];
+  bool time_flag = false;
+
+
+//  while (!time_flag) {
+//    if (usb_rx_len == 10) {
+//      time = (int64_t)strtoll(usb_rx_buffer, NULL, 10);
+//      usb_rx_len = 0;
+//      convert_unix_to_beijing_time(time, time_c, sizeof(time_c));
+//      Send_Init_Success_to_PC(System);
+//      time_flag = true;
+//    }
+//  }
 
   pre_init();
-
 
 
 
@@ -205,20 +169,60 @@ int main(void)
 
 
 
-    uint8_t pressure_value[2]={0x00};
+     uint8_t pressure_value[2]={0x00};
 
-    pre_read_value(pressure_value);
-    CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
+     pre_read_value(pressure_value);
+     CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
 
-    static int i=0;
-    i++;
-    if (i%10==0)
-    {
-      pre_clear();
-    }
+     static int i=0;
+     i++;
+//     if (i%10==0)
+//     {
+//       pre_clear();
+//     }
 
 
-    HAL_Delay(300);
+     HAL_Delay(300);
+
+
+
+
+    // char temp[2];
+    // sprintf(temp, "%d", temp_out);
+    // CDC_Transmit_FS(temp, sizeof(temp));
+    // HAL_Delay(100);
+
+
+
+
+
+//    if (usb_rx_len == 1) {
+//      int command = usb_rx_buffer[0];
+//      switch (command) {
+//        case 0x01 :
+//          pre_clear();
+//          break;
+//        case 0x02 :
+//
+//
+//          break;
+//        default:
+//          break;
+//      }
+//
+//    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
