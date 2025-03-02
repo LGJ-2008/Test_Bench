@@ -21,6 +21,7 @@
 #include "fatfs.h"
 #include "sdio.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
@@ -39,11 +40,13 @@
 #include "file_conf.h"
 #include "message_define.h"
 #include "pre_sen.h"
+#include "EXTI.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+extern int64_t time_ms;
+extern int ms_counter;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -53,7 +56,7 @@ void convert_unix_to_beijing_time(time_t timestamp, uint8_t* time_c, size_t buff
   struct tm *timeinfo = gmtime(&timestamp);  // 解析为 UTC+8 时间
 
   // 使用 sprintf 格式化字符串，并存入 uint8_t 数组
-  snprintf((char *)time_c, buffer_size, "%d-%02d-%02d %02d:%02d:%02d",
+  snprintf((char *)time_c, buffer_size, "%d%02d%02d%02d%02d%02d",
            timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
 }
@@ -117,44 +120,49 @@ int main(void)
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
   MX_SPI2_Init();
+  MX_USART1_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
   SD_files_Init();
   SD_files_mount();
 
-  char file_name[] = "NewFile.txt";
-  SD_files_New(file_name);
-
-  char file_Details[] = "Hello World";
-  for (int i = 0; i < 10; i++)
-  {
-    SD_files_Write(file_Details, strlen(file_Details));
-  }
-
-  SD_files_Close();
 
 
 
 
 
-  int64_t time;
-  uint8_t time_c[25];
+
+
+  char time_c[15];
   bool time_flag = false;
 
 
-//  while (!time_flag) {
-//    if (usb_rx_len == 10) {
-//      time = (int64_t)strtoll(usb_rx_buffer, NULL, 10);
-//      usb_rx_len = 0;
-//      convert_unix_to_beijing_time(time, time_c, sizeof(time_c));
-//      Send_Init_Success_to_PC(System);
-//      time_flag = true;
-//    }
-//  }
+  while (!time_flag) {
+    if (usb_rx_len == 10) {
+        time_ms = (int64_t)strtoll(usb_rx_buffer, NULL, 10);
+        usb_rx_len = 0;
+        Send_Init_Success_to_PC(System);
+        time_ms = time_ms * 1000;
+        time_flag = true;
+    }
+  }
+    HAL_TIM_Base_Start_IT(&htim6);
+
+
+
+
+
+
+
 
   pre_init();
 
 
+    char file_name[20];
+    convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
+    sprintf(file_name, "%s.csv",time_c);
+    SD_files_New(file_name);
 
   /* USER CODE END 2 */
 
@@ -166,26 +174,39 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-
+      HAL_Delay(300);
 
 
      uint8_t pressure_value[2]={0x00};
 
-     pre_read_value(pressure_value);
-     CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
-
-     static int i=0;
-     i++;
-//     if (i%10==0)
-//     {
-//       pre_clear();
-//     }
-
-
-     HAL_Delay(300);
+//     CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
 
 
 
+
+
+
+
+
+
+
+      char file_Details[20];
+      for (int i = 0; i < 1000; i++)
+      {
+          pre_read_value(pressure_value);
+          int pre_value = pressure_value[0]<<8 | pressure_value[1];
+          if (pre_value > 60000){
+              pre_value = 0;
+          }
+          float pre_value2 = (float)pre_value/10;
+          //sprintf(file_Details, "%lld", time_ms);
+          convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
+          sprintf(file_Details, "%s,%d,%.1f", time_c, ms_counter, pre_value2);
+          SD_files_Write(file_Details, strlen(file_Details));
+          HAL_Delay(100);
+      }
+
+      SD_files_Close();
 
     // char temp[2];
     // sprintf(temp, "%d", temp_out);
