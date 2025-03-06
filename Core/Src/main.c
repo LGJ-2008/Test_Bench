@@ -40,6 +40,7 @@
 #include "file_conf.h"
 #include "message_define.h"
 #include "pre_sen.h"
+#include "temprature.h"
 #include "EXTI.h"
 /* USER CODE END Includes */
 
@@ -163,6 +164,8 @@ int main(void)
     convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
     sprintf(file_name, "%s.csv",time_c);
     SD_files_New(file_name);
+    char tittle[] = "time,ms,pre,temp";
+    SD_files_Write(tittle, strlen(tittle));
 
   /* USER CODE END 2 */
 
@@ -190,18 +193,19 @@ int main(void)
 
 
 
-      char file_Details[20];
+      char file_Details[30];
       for (int i = 0; i < 1000; i++)
       {
           pre_read_value(pressure_value);
           int pre_value = pressure_value[0]<<8 | pressure_value[1];
+          int temp_value = temp_receive();
           if (pre_value > 60000){
               pre_value = 0;
           }
           float pre_value2 = (float)pre_value/10;
           //sprintf(file_Details, "%lld", time_ms);
           convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
-          sprintf(file_Details, "%s,%d,%.1f", time_c, ms_counter, pre_value2);
+          sprintf(file_Details, "%s,%d,%.1f,%d", time_c, ms_counter, pre_value2, temp_value);
           SD_files_Write(file_Details, strlen(file_Details));
           HAL_Delay(100);
       }

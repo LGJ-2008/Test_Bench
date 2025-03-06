@@ -4,7 +4,7 @@
 #include "stm32f4xx_hal.h"
 
 
-void temp_receive() {
+int temp_receive() {
 	uint8_t temp_Full[4];
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
 	HAL_SPI_Receive(&hspi2, temp_Full, 4, 100);
@@ -20,4 +20,5 @@ void temp_receive() {
 		temp_out++;
 		temp_out = -temp_out;
 	}
+	return temp_out;
 }
