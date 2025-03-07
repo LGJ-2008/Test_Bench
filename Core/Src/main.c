@@ -153,12 +153,6 @@ int main(void)
   HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_RESET);
 
 
-
-
-
-
-
-
   pre_init();
 
 
@@ -192,7 +186,6 @@ int main(void)
           HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_SET);
 
           while (true) {
-            SD_files_mount();
             if (usb_rx_len == 1 && usb_rx_buffer[0] == 0xFF) {
               usb_rx_len = 0;
               finishing_Read();
