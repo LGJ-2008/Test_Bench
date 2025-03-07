@@ -31,7 +31,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b4a642d-0221-450e-b3aa-6fe3ebdd6dfa" name="更改" comment="2025.3.7">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Inc/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Inc/main.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Src/gpio.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/gpio.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Core/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test_Bench.ioc" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Bench.ioc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.elf" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.elf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.hex" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.hex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.map" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Test_Bench.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1597,6 +1610,7 @@
     <setting file="file://$PROJECT_DIR$/Private/file_conf.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Private/file_conf.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Private/global.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Private/global.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -1755,7 +1769,7 @@
       <workItem from="1741248540529" duration="795000" />
       <workItem from="1741272435006" duration="2149000" />
       <workItem from="1741346911969" duration="3963000" />
-      <workItem from="1741354407380" duration="3020000" />
+      <workItem from="1741354407380" duration="4894000" />
     </task>
     <task id="LOCAL-00001" summary="1">
       <option name="closed" value="true" />
@@ -1845,7 +1859,15 @@
       <option name="project" value="LOCAL" />
       <updated>1741360388983</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="2025.3.7">
+      <option name="closed" value="true" />
+      <created>1741360501063</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1741360501063</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

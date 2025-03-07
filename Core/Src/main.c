@@ -132,6 +132,10 @@ int main(void)
 
   bool time_flag = false;
 
+  HAL_GPIO_WritePin(GPIOD, Red_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, Green_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_RESET);
+
 
   while (!time_flag) {
     if (usb_rx_len == 10) {
@@ -143,6 +147,10 @@ int main(void)
     }
   }
     HAL_TIM_Base_Start_IT(&htim6);
+
+  HAL_GPIO_WritePin(GPIOD, Red_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Green_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_RESET);
 
 
 
@@ -178,11 +186,21 @@ int main(void)
 
         case 0x02 :
           Start_Read();
+
+          HAL_GPIO_WritePin(GPIOD, Red_Pin, GPIO_PIN_RESET);
+          HAL_GPIO_WritePin(GPIOD, Green_Pin, GPIO_PIN_RESET);
+          HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_SET);
+
           while (true) {
             SD_files_mount();
             if (usb_rx_len == 1 && usb_rx_buffer[0] == 0xFF) {
               usb_rx_len = 0;
               finishing_Read();
+
+              HAL_GPIO_WritePin(GPIOD, Red_Pin, GPIO_PIN_RESET);
+              HAL_GPIO_WritePin(GPIOD, Green_Pin, GPIO_PIN_SET);
+              HAL_GPIO_WritePin(GPIOD, Blue_Pin, GPIO_PIN_RESET);
+
               break;
             }
             usb_rx_len = 0;
