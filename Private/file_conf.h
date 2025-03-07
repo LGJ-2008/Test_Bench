@@ -3,6 +3,7 @@
 
 #endif //FILE_CONF_H
 
+
 typedef enum
 {
     FILE_CONF_OK = 0,
@@ -19,5 +20,5 @@ typedef enum
 void SD_files_Init(void);
 void SD_files_mount(void);
 void SD_files_New(char* file_name);
-void SD_files_Write(char* file_Details, UINT Details_Size);
+void SD_files_Write(char* file_Details, unsigned int Details_Size);
 void SD_files_Close(void);

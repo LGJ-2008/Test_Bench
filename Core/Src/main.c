@@ -42,25 +42,19 @@
 #include "pre_sen.h"
 #include "temprature.h"
 #include "EXTI.h"
+#include "global.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 extern int64_t time_ms;
 extern int ms_counter;
+extern char time_c[15];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-void convert_unix_to_beijing_time(time_t timestamp, uint8_t* time_c, size_t buffer_size) {
-  timestamp += 8 * 3600;  // 手动添加 8 小时偏移
-  struct tm *timeinfo = gmtime(&timestamp);  // 解析为 UTC+8 时间
 
-  // 使用 sprintf 格式化字符串，并存入 uint8_t 数组
-  snprintf((char *)time_c, buffer_size, "%d%02d%02d%02d%02d%02d",
-           timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
-           timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
-}
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -135,7 +129,7 @@ int main(void)
 
 
 
-  char time_c[15];
+
   bool time_flag = false;
 
 
@@ -160,12 +154,7 @@ int main(void)
   pre_init();
 
 
-    char file_name[20];
-    convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
-    sprintf(file_name, "%s.csv",time_c);
-    SD_files_New(file_name);
-    char tittle[] = "time,ms,pre,temp";
-    SD_files_Write(tittle, strlen(tittle));
+
 
   /* USER CODE END 2 */
 
@@ -177,67 +166,44 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-      HAL_Delay(300);
+
+    if (usb_rx_len == 1) {
+      usb_rx_len = 0;
+      int command = usb_rx_buffer[0];
+      switch (command) {
+        case 0x01 :
+          pre_clear();
+          break;
 
 
-     uint8_t pressure_value[2]={0x00};
-
-//     CDC_Transmit_FS(pressure_value, sizeof(pressure_value));
-
-
-
-
-
-
-
-
-
-
-      char file_Details[30];
-      for (int i = 0; i < 1000; i++)
-      {
-          pre_read_value(pressure_value);
-          int pre_value = pressure_value[0]<<8 | pressure_value[1];
-          int temp_value = temp_receive();
-          if (pre_value > 60000){
-              pre_value = 0;
+        case 0x02 :
+          Start_Read();
+          while (true) {
+            SD_files_mount();2
+            if (usb_rx_len == 1 && usb_rx_buffer[0] == 0xFF) {
+              usb_rx_len = 0;
+              finishing_Read();
+              break;
+            }
+            usb_rx_len = 0;
+            Read_value();
+            Send_Value();
+            HAL_Delay(2);
           }
-          float pre_value2 = (float)pre_value/10;
-          //sprintf(file_Details, "%lld", time_ms);
-          convert_unix_to_beijing_time(time_ms/1000, time_c, sizeof(time_c));
-          sprintf(file_Details, "%s,%d,%.1f,%d", time_c, ms_counter, pre_value2, temp_value);
-          SD_files_Write(file_Details, strlen(file_Details));
-          HAL_Delay(100);
+
+          break;
+
+
+        default:
+
+          break;
       }
 
-      SD_files_Close();
 
-    // char temp[2];
-    // sprintf(temp, "%d", temp_out);
-    // CDC_Transmit_FS(temp, sizeof(temp));
-    // HAL_Delay(100);
+    }
 
-
-
-
-
-//    if (usb_rx_len == 1) {
-//      int command = usb_rx_buffer[0];
-//      switch (command) {
-//        case 0x01 :
-//          pre_clear();
-//          break;
-//        case 0x02 :
-//
-//
-//          break;
-//        default:
-//          break;
-//      }
-//
-//    }
-
-
+    Send_Value();
+    HAL_Delay(2);
 
 
 

@@ -57,7 +57,7 @@ void SD_files_New(char* file_name)
 }
 
 /*写入信息*/
-void SD_files_Write(char* file_Details, UINT Details_Size)
+void SD_files_Write(char* file_Details, unsigned int Details_Size)
 {
     /*判断文件状态*/
     if (File_Conf_Status == FILE_CONF_ERROR)
