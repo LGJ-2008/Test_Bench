@@ -179,7 +179,7 @@ int main(void)
         case 0x02 :
           Start_Read();
           while (true) {
-            SD_files_mount();2
+            SD_files_mount();
             if (usb_rx_len == 1 && usb_rx_buffer[0] == 0xFF) {
               usb_rx_len = 0;
               finishing_Read();
